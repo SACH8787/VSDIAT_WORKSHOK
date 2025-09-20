@@ -1,6 +1,6 @@
 # 	VSDIAT_WORKSHOK
 <details>
-	<summary>Day 0 - Tools Installation </summary>
+	<summary>WEEK 0 - Tools Installation </summary>
 	
 # Day 0 - Tools Installation
 ## Yosys
