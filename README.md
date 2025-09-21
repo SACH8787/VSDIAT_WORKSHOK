@@ -75,6 +75,7 @@ $ gtkwave good_mux_tb.vcd
 
 
 <details>
+<summary>WEEK1 - DAY 2</summary>
 
 # WEEK1 -Day 2: Timing Libraries, Synthesis Approaches, and Efficient Flip-Flop Coding
 
