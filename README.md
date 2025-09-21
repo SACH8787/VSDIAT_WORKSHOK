@@ -32,4 +32,42 @@ $ sudo apt install gtkwave
 
 </details>
 
+<details>
+    <summary>WEEK 1 - Day 0 - Simulation and Synthesis Steps</summary>
+    
+# Week 1 - Day 0 - Simulation and Synthesis
+
+## Yosys - Synthesis and Netlist Diagram
+$ yosys
+yosys> read_verilog verilog/good_mux.v
+yosys> synth -top good_mux
+yosys> show
+
+- `read_verilog verilog/good_mux.v` reads your Verilog file.
+- `synth -top good_mux` synthesizes your top module named `good_mux`.
+- `show` opens a GTK window displaying the synthesized netlist diagram.
+
+## Icarus Verilog - Simulation and Waveform Viewing
+
+- Compile your Verilog source and testbench:
+
+$ iverilog -o good_mux_tb.vvp verilog/good_mux.v testbench/good_mux_tb.v
+
+
+- Run the simulation:
+
+$ vvp good_mux_tb.vvp
+
+
+- View the waveform output:
+
+$ gtkwave good_mux_tb.vcd
+
+
+*(Ensure your testbench writes waveform data to `good_mux_tb.vcd`)*
+
+
+</details>
+
+
 
