@@ -260,8 +260,7 @@ endmodule
 3. **View Waveform:**
    ```shell
    gtkwave tb_dff_asyncres.vcd
-   ```
-!([https://github.com/user-attachments/assets/1176581e-fd6c-4b71-8af5-5d7d5f6dbcda](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/gtkwave_asyncres.png))
+   ``
 
 
 ### Synthesis with Yosys
@@ -294,7 +293,10 @@ endmodule
    ```shell
    show
    ```
-!([https://github.com/user-attachments/assets/fa8337df-e0ec-4b01-9b18-5910768e4421](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/yosys_asyncres.png))
+![GTKWave Async Reset Simulation](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/gtkwave_asyncres.png)
+
+![Yosys Async Reset Synthesis](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/yosys_asyncres.png)
+
 
 
 
