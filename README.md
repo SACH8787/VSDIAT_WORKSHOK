@@ -15,20 +15,24 @@ $ sudo apt-get install build-essential clang bison flex \
 $ make 
 $ sudo make install
 ```
-<img width="575" alt="yosys" src="[https://github.com/sukanyasmeher/sfal-vsd/assets/166566124/7dfb067d-5f8c-407b-86eb-6bcb44f60a97](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/yosys_installed.png)">
+![Yosys Installed](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/yosys_installed.png)
 
 ## Iverilog
 ```
 $ sudo apt-get install iverilog
 ```
-<img width="702" alt="iverilog" src="[https://github.com/sukanyasmeher/sfal-vsd/assets/166566124/e660c9fc-0d6d-4ab7-b75f-9992133771ef](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/iverilog_installed.png)">
+![Iverilog Installed](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/iverilog_installed.png)
+
+
 
 ## GTKWave
 ```
 $ sudo apt update
 $ sudo apt install gtkwave
 ```
-<img width="604" alt="gtkwave2" src="[https://github.com/sukanyasmeher/sfal-vsd/assets/166566124/843a73bc-20ec-4417-bdc8-883caa6a299b](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/gtkwave_installed.png)">
+
+![GTKWave Installed](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK0/gtkwave_installed.png)
+
 
 </details>
 
@@ -57,16 +61,15 @@ $ iverilog -o good_mux_tb.vvp verilog/good_mux.v testbench/good_mux_tb.v
 - Run the simulation:
 
 $ vvp good_mux_tb.vvp
-
+![Good Mux Synthesized Netlist](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY1/good_mux_synth.png)
 
 - View the waveform output:
 
 $ gtkwave good_mux_tb.vcd
-
+![Good Mux Waveform](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY1/good_mux_wave.png)
 
 *(Ensure your testbench writes waveform data to `good_mux_tb.vcd`)*
-<img width="575" scr="https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/DAY1/good_mux_synth.png">
-<img width="575" scr="https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/DAY1/good_mux_wave.png">
+
 
 </details>
 
