@@ -65,7 +65,8 @@ $ gtkwave good_mux_tb.vcd
 
 
 *(Ensure your testbench writes waveform data to `good_mux_tb.vcd`)*
-
+<img width="575" scr="https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/DAY1/good_mux_synth.png">
+<img width="575" scr="https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/DAY1/good_mux_wave.png">
 
 </details>
 
