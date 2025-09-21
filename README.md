@@ -74,7 +74,7 @@ $ gtkwave good_mux_tb.vcd
 </details>
 
 
-
+<details>
 
 # WEEK1 -Day 2: Timing Libraries, Synthesis Approaches, and Efficient Flip-Flop Coding
 
@@ -290,7 +290,7 @@ endmodule
 
 ![Yosys Async Reset Synthesis](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/yosys_asyncres.png)
 
-
+</details>
 
 
 
