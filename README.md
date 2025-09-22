@@ -110,134 +110,6 @@ Welcome to Day 2 of the RTL Workshop. This day covers three crucial topics:
 
 ---
 
-## Timing Libraries
-
-### SKY130 PDK Overview
-
-The SKY130 PDK is an open-source Process Design Kit based on SkyWater Technology's 130nm CMOS technology. It provides essential models and libraries for integrated circuit (IC) design, including timing, power, and process variation information.
-
-### Decoding tt_025C_1v80 in the SKY130 PDK
-
-- **tt**: Typical process corner.
-- **025C**: Represents a temperature of 25°C, relevant for temperature-dependent performance.
-- **1v80**: Indicates a core voltage of 1.8V.
-
-This naming convention clarifies which process, voltage, and temperature conditions the library models.
-
----
-
-### Opening and Exploring the .lib File
-
-To open the sky130_fd_sc_hd__tt_025C_1v80.lib file:
-
-1. **Install a text editor:**
-   ```shell
-   sudo apt install gedit
-   ```
-2. **Open the file:**
-   ```shell
-   gedit sky130_fd_sc_hd__tt_025C_1v80.lib
-   ```
- [![Screenshot_2025-05-29_11-43-13](https://github.com/user-attachments/assets/0c31ddf8-8a95-44a4-acaa-e1c5f0518425)](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/Screenshot%20from%202025-09-22%2001-31-01.png)
-
-
----
-
-## Hierarchical vs. Flattened Synthesis
-
-### Hierarchical Synthesis
-
-- **Definition**: Retains the module hierarchy as defined in RTL, synthesizing modules separately.
-- **How it Works**: Tools like Yosys process each module independently, using commands such as `hierarchy` to analyze and set up the design structure.
-
-**Advantages:**
-- Faster synthesis time for large designs.
-- Improved debugging and analysis due to maintained module boundaries.
-- Modular approach, aiding integration with other tools.
-
-**Disadvantages:**
-- Cross-module optimizations are limited.
-- Reporting can require additional configuration.
-
-
----
-
-### Flattened Synthesis
-
-- **Definition**: Merges all modules into a single flat netlist, eliminating hierarchy.
-- **How it Works**: The `flatten` command in Yosys collapses the hierarchy, allowing whole-design optimizations.
-
-**Advantages:**
-- Enables aggressive, cross-module optimizations.
-- Results in a unified netlist, sometimes simplifying downstream processes.
-
-**Disadvantages:**
-- Longer runtime for large designs.
-- Loss of hierarchy complicates debugging and reporting.
-- Can increase memory usage and netlist complexity.
-
-> **Important:** Hierarchical synthesis maintains sub-modules in the design, while flattening produces a netlist from the ground up.
-
----
-
-### Key Differences
-
-| Aspect                | Hierarchical Synthesis             | Flattened Synthesis           |
-|-----------------------|------------------------------------|------------------------------|
-| Hierarchy             | Preserved                          | Collapsed                    |
-| Optimization Scope    | Module-level only                  | Whole-design                 |
-| Runtime               | Faster for large designs           | Slower for large designs     |
-| Debugging             | Easier (traces to RTL)             | Harder                       |
-| Output Complexity     | Modular structure                  | Single, complex netlist      |
-| Use Case              | Modularity, analysis, reporting    | Maximum optimization         |
-
----
-
-## Flip-Flop Coding Styles
-
-Flip-flops are fundamental sequential elements in digital design, used to store binary data. Below are efficient coding styles for different reset/set behaviors.
-
-### Asynchronous Reset D Flip-Flop
-
-```verilog
-module dff_asyncres (input clk, input async_reset, input d, output reg q);
-  always @ (posedge clk, posedge async_reset)
-    if (async_reset)
-      q <= 1'b0;
-    else
-      q <= d;
-endmodule
-```
-- **Asynchronous reset**: Overrides clock, setting q to 0 immediately.
-- **Edge-triggered**: Captures d on rising clock edge if reset is low.
-
-### Asynchronous Set D Flip-Flop
-
-```verilog
-module dff_async_set (input clk, input async_set, input d, output reg q);
-  always @ (posedge clk, posedge async_set)
-    if (async_set)
-      q <= 1'b1;
-    else
-      q <= d;
-endmodule
-```
-- **Asynchronous set**: Overrides clock, setting q to 1 immediately.
-
-### Synchronous Reset D Flip-Flop
-
-```verilog
-module dff_syncres (input clk, input async_reset, input sync_reset, input d, output reg q);
-  always @ (posedge clk)
-    if (sync_reset)
-      q <= 1'b0;
-    else
-      q <= d;
-endmodule
-```
-- **Synchronous reset**: Takes effect only on the clock edge.
-
----
 
 ## Simulation and Synthesis Workflow
 
@@ -292,7 +164,140 @@ endmodule
 ![Yosys Async Reset Synthesis](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/WEEK-1/WEEK1/Day2/yosys_asyncres.png)
 
 </details>
+<details>
+	<summary>WEEK1- DAY3</summary>
+	
+## 5. Labs on Optimization
 
+### Lab 1
+
+Below is the Verilog code for Lab 1:
+
+```verilog
+module opt_check (input a , input b , output y);
+	assign y = a?b:0;
+endmodule
+```
+
+**Explanation:**
+- `assign y = a ? b : 0;` means:
+  - If `a` is true, `y` is assigned the value of `b`.
+  - If `a` is false, `y` is 0.
+
+Follow the steps from [Day 1 Synthesis Lab](https://github.com/Ahtesham18112011/RTL_workshop/tree/main/Day_1#6-synthesis-lab-with-yosys) and add the following between `abc -liberty` and `synth -top`:
+```shell
+opt_clean -purge
+```
+
+![Lab 1 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/OPT_CHECK.png)
+
+---
+
+### Lab 2
+
+Verilog code:
+
+```verilog
+module opt_check2 (input a , input b , output y);
+	assign y = a?1:b;
+endmodule
+```
+
+**Code Analysis:**
+- Acts as a multiplexer:
+  - `y = 1` if `a` is true.
+  - `y = b` if `a` is false.
+
+![Lab 2 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/OPT_CHECK2.png)
+
+---
+
+### Lab 3
+
+Verilog code:
+
+```verilog
+module opt_check2 (input a , input b , output y);
+	assign y = a?1:b;
+endmodule
+```
+
+**Functionality:**  
+2-to-1 multiplexer; `y = a ? 1 : b` (outputs `1` when `a` is true, otherwise `b`).
+
+![Lab 3 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/OPT_CHECK3.png)
+
+---
+
+### Lab 4
+
+Verilog code:
+
+```verilog
+module opt_check4 (input a , input b , input c , output y);
+ assign y = a?(b?(a & c ):c):(!c);
+ endmodule
+```
+
+**Functionality:**
+- Three inputs (`a`, `b`, `c`), output `y`.
+- Nested ternary logic:
+  - If `a = 1`, `y = c`.
+  - If `a = 0`, `y = !c`.
+- Logic simplifies to:  
+  `y = a ? c : !c`
+
+![Lab 4 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/OPT_CHECK4.png)
+
+---
+
+### Lab 5
+
+Verilog code:
+
+```verilog
+module dff_const1(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b0;
+	else
+		q <= 1'b1;
+end
+endmodule
+```
+
+**Functionality:**
+- D flip-flop with:
+  - Asynchronous reset to 0
+  - Loads constant `1` when not in reset
+
+![Lab 5 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/DFF_CONST1.png)
+
+---
+
+### Lab 6
+
+Verilog code:
+
+```verilog
+module dff_const2(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b1;
+	else
+		q <= 1'b1;
+end
+endmodule
+```
+
+**Functionality:**
+- D flip-flop always sets output `q` to `1` (regardless of reset or clock).
+
+![Lab 6 Output](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY3/DFF_CONST2.png)
+
+</details>
 
 
 
