@@ -299,6 +299,141 @@ endmodule
 
 </details>
 
+<details>
+	<summary>WEEK 1 - DAY 4</summary>
+
+ ## 4. Labs
+
+### Lab 1: Ternary Operator MUX
+
+Verilog code for a simple 2:1 multiplexer using a ternary operator:
+
+```verilog
+module ternary_operator_mux (input i0, input i1, input sel, output y);
+  assign y = sel ? i1 : i0;
+endmodule
+```
+- **Function:** `y = i1` if `sel = 1`; else `y = i0`.
+
+
+
+---
+
+### Lab 2: Synthesis Using Yosys
+
+Synthesize the above MUX using Yosys.  
+_Follow the standard Yosys synthesis flow._
+
+![lab2](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/ternary_operator_mux.png)
+
+---
+
+### Lab 3: Gate-Level Simulation (GLS) of MUX
+
+Run GLS for the synthesized MUX.  
+Use this command (adjust paths as needed):
+
+```shell
+iverilog /path/to/primitives.v /path/to/sky130_fd_sc_hd.v ternary_operator_mux.v testbench.v
+```
+
+
+
+---
+
+### Lab 4: Bad MUX Example (Common Pitfalls)
+
+Verilog code with intentional issues:
+
+```verilog
+module bad_mux (input i0, input i1, input sel, output reg y);
+  always @ (sel) begin
+    if (sel)
+      y <= i1;
+    else 
+      y <= i0;
+  end
+endmodule
+```
+
+#### Issues:
+- **Incomplete sensitivity list**: Should include `i0`, `i1`, and `sel`.
+- **Non-blocking assignment in combinational logic**: Should use blocking assignments (`=`).
+
+**Corrected version:**
+```verilog
+always @ (*) begin
+  if (sel)
+    y = i1;
+  else
+    y = i0;
+end
+```
+
+![lab4](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/bad_mux1.png)
+
+
+![lab4-1](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/bad_mux.png)
+
+
+---
+
+### Lab 5: GLS of Bad MUX
+
+Perform GLS on the `bad_mux`.  
+Expect simulation mismatches or warnings due to above issues.
+
+![lab5](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/bad_mux2.png)
+
+---
+
+### Lab 6: Blocking Assignment Caveat
+
+Verilog code:
+
+```verilog
+module blocking_caveat (input a, input b, input c, output reg d);
+  reg x;
+  always @ (*) begin
+    d = x & c;
+    x = a | b;
+  end
+endmodule
+```
+
+#### What’s wrong?
+- The order of assignments causes `d` to use the old value of `x`—not the newly computed value.
+- **Best Practice:** Assign intermediate variables before using them.
+
+**Corrected order:**
+```verilog
+always @ (*) begin
+  x = a | b;
+  d = x & c;
+end
+```
+
+![lab6](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/blocking_caveat.png)
+
+---
+
+### Lab 7: Synthesis of the Blocking Caveat Module
+
+Synthesize the corrected version of the module and observe the results.
+
+![lab7](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK1/DAY4/blocking_caveat_tb.png)
+
+---
+
+## 5. Summary
+
+- **Gate-Level Simulation (GLS):** Validates netlist functionality, timing, and testability after synthesis.
+- **Synthesis-Simulation Mismatch:** Avoid by using synthesizable, unambiguous RTL code.
+- **Blocking vs. Non-Blocking:** Use blocking (`=`) for combinational, non-blocking (`<=`) for sequential logic.
+- **Labs:** Reinforce key concepts and highlight common RTL pitfalls.
+
+</details>
+
 
 
 
