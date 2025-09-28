@@ -73,6 +73,8 @@ $ gtkwave good_mux_tb.vcd
 
 </details>
 
+<details>
+	<summary>WEEK-1</summary>
 
 <details>
 <summary>WEEK1 - DAY 2</summary>
@@ -593,6 +595,6 @@ endmodule
 
 ---
 </details>
-
+</details>
 
 
