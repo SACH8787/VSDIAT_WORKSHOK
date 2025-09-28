@@ -599,3 +599,279 @@ endmodule
 </details>
 
 
+<details>
+	<summary>WEEK-2</summary>
+# Introduction to the VSDBabySoC
+
+VSDBabySoC is a small yet powerful RISCV-based SoC. The main purpose of designing such a small SoC is to test three open-source IP cores together for the first time and calibrate the analog part of it. VSDBabySoC contains one RVMYTH microprocessor, an 8x-PLL to generate a stable clock, and a 10-bit DAC to communicate with other analog devices.
+
+  ![vsdbabysoc_block_diagram](images/vsdbabysoc_block_diagram.png)
+
+## Problem statement
+
+This work discusses the different aspects of designing a small SoC based on RVMYTH (a RISCV-based processor). This SoC will leverage a PLL as its clock generator and controller and a 10-bit DAC as a way to talk to the outside world. Other electrical devices with proper analog input like televisions, and mobile phones could manipulate DAC output and provide users with music sound or video frames. At the end of the day, it is possible to use this small fully open-source and well-documented SoC which has been fabricated under Sky130 technology, for educational purposes.
+
+## What is SoC
+
+An SoC is a single-die chip that has some different IP cores on it. These IPs could vary from microprocessors (completely digital) to 5G broadband modems (completely analog).
+
+## What is RVMYTH
+
+RVMYTH core is a simple RISCV-based CPU, introduced in a workshop by RedwoodEDA and VSD. During a 5-day workshop students (including middle-schoolers) managed to create a processor from scratch. The workshop used the TLV for faster development. All of the present and future contributions to the IP will be done by students and under open-source licenses.
+
+## What is PLL
+
+A phase-locked loop or PLL is a control system that generates an output signal whose phase is related to the phase of an input signal. PLLs are widely used for synchronization purposes, including clock generation and distribution.
+
+## What is DAC
+
+A digital-to-analog converter or DAC is a system that converts a digital signal into an analog signal. DACs are widely used in modern communication systems enabling the generation of digitally-defined transmission signals. As a result, high-speed DACs are used for mobile communications and ultra-high-speed DACs are employed in optical communications systems.
+
+# VSDBabySoC Modeling
+
+Here we are going to model and simulate the VSDBabySoC using `iverilog`, then we will show the results using `gtkwave` tool. Some initial input signals will be fed into `vsdbabysoc` module that make the pll start generating the proper `CLK` for the circuit. The clock signal will make the `rvmyth` to execute instructions in its `imem`. As a result the register `r17` will be filled with some values cycle by cycle. These values are used by dac core to provide the final output signal named `OUT`. So we have 3 main elements (IP cores) and a wrapper as an SoC and of-course there would be also a testbench module out there.
+
+Please note that in the following sections we will mention some repos that we used to model the SoC. However the main source code is resided in [Source-Code Directory](src) and these modules are in [Modules Sub-Directory](src/module).
+
+## RVMYTH modeling
+
+As we mentioned in [What is RVMYTH](#what-is-rvmyth) section, RVMYTH is designed and created by the TL-Verilog language. So we need a way for compile and trasform it to the Verilog language and use the result in our SoC. Here the `sandpiper-saas` could help us do the job.
+
+  [Here](https://github.com/shivanishah269/risc-v-core) is the repo we used as a reference to model the RVMYTH
+
+## PLL and DAC modeling
+
+It is not possible to sythesis an analog design with Verilog, yet. But there is a chance to simulate it using `real` datatype. We will use the following repositories to model the PLL and DAC cores:
+
+  1. [Here](https://github.com/vsdip/rvmyth_avsdpll_interface) is the repo we used as a reference to model the PLL
+  2. [Here](https://github.com/vsdip/rvmyth_avsddac_interface) is the repo we used as a reference to model the DAC
+
+**CAUTION:** In the beginning of the project, we get our verilog model of the PLL from [here](https://github.com/vsdip/rvmyth_avsdpll_interface). However, by proceeding the project to the physical design flow we realize that this model needs a little changes to become sufficient for a real IP core. So we changed it a little and created a new model named `AVSDPLL` based on [this](https://github.com/lakshmi-sathi/avsdpll_1v8) IP
+
+## Step by step modeling walkthrough
+
+In this section we will walk through the whole process of modeling the VSDBabySoC in details. We will increase/decrease the digital output value and feed it to the DAC model so we can watch the changes on the SoC output. Please, note that the following commands are tested on the Ubuntu Bionic (18.04.5) platform and no other OSes.
+
+  1. First we need to install some important packages:
+
+  ```
+  $ sudo apt install make python python3 python3-pip git iverilog gtkwave docker.io
+  $ sudo chmod 666 /var/run/docker.sock
+  $ cd ~
+  $ pip3 install pyyaml click sandpiper-saas
+  ```
+
+  2. Now we can clone this repository in an arbitrary directory (we'll choose home directory here):
+
+  ```
+  $ cd ~
+  $ git clone https://github.com/manili/VSDBabySoC.git
+  ```
+
+  3. It's time to make the `pre_synth_sim.vcd`:
+
+  ```
+  $ cd VSDBabySoC
+  $ make pre_synth_sim
+  ```
+  
+  The result of the simulation (i.e. `pre_synth_sim.vcd`) will be stored in the `output/pre_synth_sim` directory.
+
+  4. We can see the waveforms by following command:
+
+  ```
+  $ gtkwave output/pre_synth_sim/pre_synth_sim.vcd
+  ```
+  
+  Two most important signals are `CLK` and `OUT`. The `CLK` signal is provided by the PLL and the `OUT` is the output of the DAC model. Here is the final result of the modeling process:
+  
+  ![pre_synth_sim](images/pre_synth_sim.png)
+
+In this picture we can see the following signals:
+
+  * **CLK:** This is the `input CLK` signal of the `RVMYTH` core. This signal comes from the PLL, originally.
+  * **reset:** This is the `input reset` signal of the `RVMYTH` core. This signal comes from an external source, originally.
+  * **OUT:** This is the `output OUT` signal of the `VSDBabySoC` module. This signal comes from the DAC (due to simulation restrictions it behaves like a digital signal which is incorrect), originally.
+  * **RV_TO_DAC[9:0]:** This is the 10-bit `output [9:0] OUT` port of the `RVMYTH` core. This port comes from the RVMYTH register #17, originally.
+  * **OUT:** This is a `real` datatype wire which can simulate analog values. It is the `output wire real OUT` signal of the `DAC` module. This signal comes from the DAC, originally.
+
+**PLEASE NOTE** that the sythesis process does not support `real` variables, so we must use the simple `wire` datatype for the `\vsdbabysoc.OUT` instead. The `iverilog` simulator always behaves `wire` as a digital signal. As a result we can not see the analog output via `\vsdbabysoc.OUT` port and we need to use `\dac.OUT` (which is a `real` datatype) instead.
+
+# OpenLANE
+
+OpenLANE is an automated RTL to GDSII flow based on several components including OpenROAD, Yosys, Magic, Netgen, Fault, SPEF-Extractor and custom methodology scripts for design exploration and optimization. The main usage of OpenLANE in this project is for [VSDBabySoC Physical Design](#vsdbabysoc-physical-design). However, we need OpenLANE for the synthesis and STA process in the [Post-synthesis simulation](#post-synthesis-simulation) section. So we'll talk about its installation process here and let the details be until the [VSDBabySoC Physical Design](#vsdbabysoc-physical-design) section.
+
+## OpenLANE installation
+
+The OpenLANE and sky130 installation can be done by following the steps in this repository `https://github.com/nickson-jose/openlane_build_script`.
+
+* More information on OpenLANE can be found in the following repositories:
+
+  * `https://github.com/The-OpenROAD-Project/OpenLane`
+  * `https://github.com/efabless/openlane`
+
+To summerize the installation processes:
+
+  ```
+  $ git clone https://github.com/The-OpenROAD-Project/OpenLane.git
+  $ cd OpenLane/
+  $ make openlane
+  $ make pdk
+  $ make test
+  ```
+
+For more info please refer to the GitHub repositories.
+
+**PLEASE NOTE** that currently we are using commit version `8580c248a995b575f7734813b80bb6c4aa82d4f2` for the OpenLANE and our docker image version is `2021.09.09_03.00.48`.
+
+# Post-synthesis simulation
+
+First step in the design flow is to synthesize the generated RTL code and after that we will simulate the result. This way we can find more about our code and its bugs. So in this section we are going to synthesize our code then do a post-synthesis simulation to look for any issues. The post and pre (modeling section) synthesis results should be identical.
+
+## Synthesizing using Yosys
+
+* In OpenLANE the RTL synthesis is performed by `yosys`.
+* The technology mapping is performed by `abc`.
+* Finally, the timing reports for the synthesized netlist are generated by `OpenSTA`.
+
+## How to synthesize the design
+
+To perform the synthesis process do the following:
+
+  ```
+  $ cd ~/VSDBabySoC
+  $ make synth
+  ```
+
+The heavy job will be done by the script. When the process has been done, we can see the result in the `output/synth/vsdbabysoc.synth.v` file.
+
+## Post-synthesis simulation (GLS)
+
+There is an issue for post-synthesis simulation (Gate-Level Simulation) which can be tracked [here](https://github.com/google/skywater-pdk/issues/310). However, we hacked the source-code by the following instructions and we managed to workaround the issue for now ([here is the reference](https://github.com/The-OpenROAD-Project/OpenLane/issues/518)):
+
+  1. In `$YOUR_PDK_PATH/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v` file we should manually correct `endif SKY130_FD_SC_HD__LPFLOW_BLEEDER_FUNCTIONAL_V` to `endif //SKY130_FD_SC_HD__LPFLOW_BLEEDER_FUNCTIONAL_V`.
+  2. We can simulate with the functional models by passing the `FUNCTIONAL` define to `iverilog`. Also we need to set `UNIT_DELAY` macro to some value. As a result we'll have `iverilog -DFUNCTIONAL -DUNIT_DELAY=#1 <THE SOURCE-CODEs TO BE COMPILED>`.
+
+User could bypass these confusing steps by using our provided Makefile:
+
+  ```
+  $ cd ~/VSDBabySoC
+  $ make post_synth_sim
+  ```
+The result of the simulation (i.e. `post_synth_sim.vcd`) will be stored in the `output/post_synth_sim` directory and the waveform could be seen by the following command:
+
+  ```
+  $ gtkwave output/post_synth_sim/post_synth_sim.vcd
+  ```
+Here is the final result:
+
+  ![post_synth_sim](images/post_synth_sim.png)
+
+In this picture we can see the following signals:
+
+  * **\core.CLK:** This is the `input CLK` signal of the `RVMYTH` core. This signal comes from the PLL, originally.
+  * **reset:** This is the `input reset` signal of the `RVMYTH` core. This signal comes from an external source, originally.
+  * **OUT:** This is the `output OUT` signal of the `VSDBabySoC` module. This signal comes from the DAC (due to simulation restrictions it behaves like a digital signal which is incorrect), originally.
+  * **\core.OUT[9:0]:** This is the 10-bit `output [9:0] OUT` port of the `RVMYTH` core. This port comes from the RVMYTH register #17, originally.
+  * **OUT:** This is a `real` datatype wire which can simulate analog values. It is the `output wire real OUT` signal of the `DAC` module. This signal comes from the DAC, originally.
+
+**PLEASE NOTE** that the sythesis process does not support `real` variables, so we must use the simple `wire` datatype for the `\vsdbabysoc.OUT` instead. The `iverilog` simulator always behaves `wire` as a digital signal. As a result we can not see the analog output via `\vsdbabysoc.OUT` port and we need to use `\dac.OUT` (which is a `real` datatype) instead.
+
+
+
+VSDBabySoC-Simulation/
+│
+├── README.md                  # Simulation report (pre-filled)
+├── simulation_logs/           # Terminal logs from simulation
+│   ├── pre_synth_sim.log
+│   ├── vvp_sim.out
+│   └── synth.log (optional)
+│
+├── screenshots/               # GTKWave waveform screenshots
+│   ├── reset_waveform.png
+│   ├── clk_waveform.png
+│   ├── fetch_decode.png
+│   ├── alu_waveform.png
+│   └── mem_waveform.png
+│
+├── src/                       # Original source files
+│   ├── module/
+│   │   ├── rvmyth.tlv
+│   │   └── testbench.v
+│   └── include/
+│       └── *.vh or header files
+│
+├── output/                    # Auto-generated files (add to .gitignore)
+│   ├── pre_synth_sim/
+│   ├── compiled_tlv/
+│   └── synth/
+│
+└── Makefile                   # Build/simulation commands
+
+
+
+2. Observations
+2.1 Reset Operation
+
+
+Observation:
+When reset = 1, the program counter (pc) and all pipeline registers are cleared to zero. After reset is deasserted (reset = 0), the CPU begins fetching instructions sequentially.
+
+2.2 Clocking
+
+
+Observation:
+The CPU state updates on the rising edge of clk. The program counter increments on each cycle, demonstrating synchronous operation of the BabySoC pipeline.
+
+2.3 Instruction Fetch & Decode
+
+
+Observation:
+Instruction memory outputs (instr) reflect the instruction being fetched at the current pc. The decoded signals (rd, rs1, rs2) are ready for ALU execution in the following cycle.
+
+2.4 ALU Operation
+
+
+Observation:
+The ALU executes arithmetic and logical instructions using operands from the register file. The result (alu_out) is written back to the register file or memory depending on the instruction type.
+
+2.5 Memory Operations
+
+
+Observation:
+Load and store instructions trigger memory read/write signals (dmem_rd_en, dmem_wr_en). Memory addresses and data values are updated accordingly.
+
+3. Simulation Logs
+
+Simulation logs are saved in the simulation_logs/ folder:
+
+pre_synth_sim.log → pre-synthesis simulation output
+
+vvp_sim.out → simulation execution output
+
+synth.log → synthesis logs (optional if using OpenLane)
+
+Example terminal command to view logs:
+
+cat simulation_logs/pre_synth_sim.log
+
+4. Conclusion
+
+The BabySoC CPU demonstrates correct operation:
+
+Proper reset and clock synchronization
+
+Accurate instruction fetch, decode, and execution
+
+Correct ALU computation and memory access
+
+Waveforms confirm that all modules are communicating as expected, and the TL-Verilog design has been successfully converted and simulated.
+
+![img1](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK2/SOC_DESIGN_FLOW.png)
+![img2](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK2/Screenshot%20from%202025-09-28%2019-21-05.png)
+![img3](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK2/Screenshot%20from%202025-09-28%2019-25-49.png)
+
+
+
+</details>
+
