@@ -986,4 +986,58 @@ gtkwave post_synth_sim.vcd
 ![img7](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/7.png)
 ![img8](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/8.png)
 
+
+
+# Static Timing Analysis (STA) – BabySoC
+
+## **Purpose**
+- STA is used to **verify timing correctness** of a digital design **without dynamic simulation**.
+- Ensures all signals propagate correctly through **combinational and sequential logic** within the clock period.
+- Detects **setup and hold violations** for flip-flops and other sequential elements.
+
+---
+
+## **Key Concepts**
+- **Clock Period (Tclk):** Maximum allowed time for signals to propagate before the next clock edge.
+- **Setup Time:** Minimum time a data signal must be stable **before** the clock edge.
+- **Hold Time:** Minimum time a data signal must remain stable **after** the clock edge.
+- **Slack:** Difference between the required arrival time and actual arrival time at a flip-flop or latch.
+  - **Positive Slack:** Timing is met.
+  - **Negative Slack:** Timing violation exists.
+
+---
+
+## **Components Analyzed**
+- **Combinational Paths:** Logic between flip-flops or I/O pins.
+- **Sequential Elements:** Flip-flops, latches, registers.
+- **Clock Paths:** Clock distribution network including delays, skew, and jitter.
+
+---
+
+## **Workflow for STA**
+
+### **1. Prepare Netlist**
+- Use the **post-synthesis netlist**, e.g., `vsdbabysoc.synth.v` mapped to standard cells.
+
+### **2. Define Timing Constraints**
+- Provide an **SDC (Synopsys Design Constraints)** file with:
+  - Clock definitions
+  - Input/output delays
+  - Setup/hold timing constraints
+
+### **3. Run STA Tool**
+- Example command (inside OpenLane docker):
+
+```bash
+sta -exit -threads max /VSDBabySoC/src/script/sta.conf | tee ../output/sta/sta.log
+
+
+
+
+
+
+
+
+
+
 </details>
