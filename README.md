@@ -874,4 +874,116 @@ Waveforms confirm that all modules are communicating as expected, and the TL-Ver
 
 
 </details>
+<details>
+	<summary>WEEK -3 </summary>
+	# BabySoC GLS & Post-Synthesis Simulation
 
+## **Gate-Level Simulation (GLS) of BabySoC**
+
+### **Purpose of GLS**
+Gate-Level Simulation is used to verify the functionality of a design **after the synthesis process**. Unlike RTL (Register Transfer Level) simulations, which work at a higher abstraction level, GLS works on the **actual synthesized netlist**, including gates and interconnections.  
+
+#### **Key Aspects of GLS for BabySoC**
+
+- **Verification with Timing Information**:  
+  GLS can include Standard Delay Format (SDF) files to verify timing correctness under realistic conditions.  
+
+- **Design Validation Post-Synthesis**:  
+  Ensures the design’s logical behavior remains correct after mapping to gate-level cells.  
+  Detects issues like glitches or metastability.  
+
+- **Simulation Tools**:  
+  - **Icarus Verilog** for compiling and simulating netlists  
+  - **GTKWave** for waveform visualization  
+
+- **Importance for BabySoC**:  
+  BabySoC has multiple modules such as the RISC-V processor, PLL, and DAC. GLS ensures correct interactions between these modules after synthesis.  
+
+---
+
+## **Step-by-Step Execution Plan**
+
+### **Step 1: Load the Top-Level Design and Supporting Modules**
+
+
+yosys
+Inside the Yosys shell, run:
+
+tcl
+Copy code
+read_verilog /home/sachin-mohanty/VSDBabySoC/src/module/vsdbabysoc.v
+read_verilog -I /home/sachin-mohanty/VSDBabySoC/src/include /home/sachin-mohanty/VSDBabySoC/src/module/rvmyth.v
+read_verilog -I /home/sachin-mohanty/VSDBabySoC/src/include /home/sachin-mohanty/VSDBabySoC/src/module/clk_gate.v
+
+Step 2: Load the Liberty Files for Synthesis
+tcl
+Copy code
+read_liberty -lib /home/sachin-mohanty/VSDBabySoC/src/lib/avsdpll.lib
+read_liberty -lib /home/sachin-mohanty/VSDBabySoC/src/lib/avsddac.lib
+read_liberty -lib /home/sachin-mohanty/VSDBabySoC/src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+Step 3: Run Synthesis Targeting vsdbabysoc
+tcl
+Copy code
+synth -top vsdbabysoc
+
+Step 4: Map D Flip-Flops to Standard Cells
+tcl
+Copy code
+dfflibmap -liberty /home/sachin-mohanty/VSDBabySoC/src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+
+Step 5: Perform Optimization and Technology Mapping
+tcl
+Copy code
+opt
+abc -liberty /home/sachin-mohanty/VSDBabySoC/src/lib/sky130_fd_sc_hd__tt_025C_1v80.lib -script +strash;scorr;ifraig;retime;{D};strash;dch,-f;map,-M,1,{D}
+
+Step 6: Perform Final Clean-Up and Renaming
+tcl
+Copy code
+flatten
+setundef -zero
+clean -purge
+rename -enumerate
+
+Step 7: Check Statistics
+tcl
+Copy code
+stat
+
+Step 8: Write the Synthesized Netlist
+tcl
+Copy code
+write_verilog -noattr /home/sachin-mohanty/VSDBabySoC/output/post_synth_sim/vsdbabysoc.synth.v
+
+Post-Synthesis Simulation and Waveforms
+Step 1: Compile the Testbench
+bash
+Copy code
+iverilog -o /home/sachin-mohanty/VSDBabySoC/output/post_synth_sim/post_synth_sim.out \
+-DPOST_SYNTH_SIM -DFUNCTIONAL -DUNIT_DELAY=#1 \
+-I /home/sachin-mohanty/VSDBabySoC/src/include \
+-I /home/sachin-mohanty/VSDBabySoC/src/module \
+/home/sachin-mohanty/VSDBabySoC/src/module/testbench.v
+Step 2: Navigate to Post-Synthesis Simulation Directory
+bash
+Copy code
+cd /home/sachin-mohanty/VSDBabySoC/output/post_synth_sim/
+Step 3: Run the Simulation
+bash
+Copy code
+./post_synth_sim.out
+Step 4: View the Waveforms in GTKWave
+bash
+Copy code
+gtkwave post_synth_sim.vcd
+![img1](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/1.png)
+![img2](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/2.png)
+![img3](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/3.png)
+![img4](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/4.png)
+![img5](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/5.png)
+![img6](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/6.png)
+![img7](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/7.png)
+![img8](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK3/8.png)
+
+</details>
