@@ -1028,8 +1028,8 @@ gtkwave post_synth_sim.vcd
 ### **3. Run STA Tool**
 - Example command (inside OpenLane docker):
 
-```bash
 sta -exit -threads max /VSDBabySoC/src/script/sta.conf | tee ../output/sta/sta.log
+</details>
 
 
 
@@ -1039,5 +1039,133 @@ sta -exit -threads max /VSDBabySoC/src/script/sta.conf | tee ../output/sta/sta.l
 
 
 
+
+
+
+
+
+
+
+
+
+<details>
+	<summary>WEEK-4</summary>
+
+	I HAVE EXCUTED ALL THE .SPICE FILES AND SAVED THE .RAW FILES IN RESULTS
+![I](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D1.png)
+	
+---
+
+## Experiments
+
+### 1. MOSFET Behavior – Id vs Vds
+**Netlist:** `nmos_id_vds.spice`  
+**Plot:** `id_vds.png`  
+
+**Theory:**  
+- The drain current \(I_D\) of an NMOS transistor depends on both **Vgs** (gate-source voltage) and **Vds** (drain-source voltage).  
+- For **Vds < Vgs - Vt**, the transistor operates in the **linear (ohmic) region**; current increases linearly with Vds.  
+- For **Vds ≥ Vgs - Vt**, the transistor enters **saturation**, where current becomes almost constant.
+
+**What the plot shows:**  
+- Multiple Id vs Vds curves for different Vgs values.  
+- Early curves rise linearly (linear region) then plateau (saturation).  
+- Demonstrates how increasing Vgs increases saturation current.
+
+![Id vs Vds](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D21.png)
+
+---
+
+### 2. Threshold Voltage Extraction – Id vs Vgs
+**Netlist:** `nmos_id_vgs.spice`  
+**Plot:** `id_vgs_sqrt.png`  
+
+**Theory:**  
+- The threshold voltage \(V_t\) is the minimum Vgs at which the MOSFET turns ON.  
+- Using the **square-root method**: in saturation, \(I_D \propto (V_{GS}-V_t)^2\).  
+- Plotting \(\sqrt{I_D}\) vs Vgs allows **linear extrapolation to find Vt**.
+
+**What the plot shows:**  
+- Linear sections of \(\sqrt{I_D}\) vs Vgs.  
+- Extrapolated line intersects x-axis at Vt (threshold voltage).  
+- Important for understanding device turn-on and timing constraints.
+
+![Id vs Vgs](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D22.png)
+![Id vs Vgs](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D31.png)
+
+---
+
+### 3. CMOS Inverter – Voltage Transfer Characteristic (VTC)
+**Netlist:** `inv_vtc.spice`  
+**Plot:** `vtc_vdd1.6_1.8_2.0.png`  
+
+**Theory:**  
+- A CMOS inverter switches an input high (Vdd) to low (0 V) at the output, and vice versa.  
+- **VTC** plots Vout vs Vin; the **switching threshold Vm** is where Vin = Vout.  
+- Noise margins are calculated as:
+  - \(V_{IL}, V_{IH}\) (input low/high voltage limits)  
+  - \(V_{OL}, V_{OH}\) (output low/high voltage)  
+  - \(NM_L = V_{IL}-V_{OL}, NM_H = V_{OH}-V_{IH}\)
+
+**What the plot shows:**  
+- VTC curves for VDD = 1.6 V, 1.8 V, 2.0 V.  
+- Vm shifts slightly with supply voltage.  
+- The slope at Vm indicates gain; steeper slope → faster transition.
+
+![VTC at different VDD](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D32.png)
+![VTC at different VDD](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D322.png)
+
+---
+
+### 4. CMOS Inverter – Transient Response
+**Netlist:** `inv_transient.spice`  
+**Plot:** `transient_waveforms.png`  
+
+**Theory:**  
+- Apply a pulse input to the inverter to observe **rise and fall propagation delays**.  
+- **t_rise**: time for output to go from 10% → 90% of VDD.  
+- **t_fall**: time for output to go from 90% → 10% of VDD.
+
+**What the plot shows:**  
+- Input pulse vs output waveform.  
+- Time difference at VDD/2 crossing gives **propagation delay**.  
+- Rise/fall delays are slightly asymmetric due to PMOS/NMOS sizing.
+
+![Transient waveform](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D4.png)
+
+---
+
+### 5. CMOS Inverter – Device & Supply Variations
+**Netlist:** `inv_variation.spice`  
+**Plot:** (included in VTC plots or separate)  
+
+**Theory:**  
+- Changing **W/L ratios** or **supply voltage** affects:  
+  - Switching threshold Vm  
+  - Noise margins  
+  - Rise/fall delays  
+- Demonstrates **robustness** of the inverter to manufacturing or environmental variations.
+
+**What the plot shows:**  
+- Overlay of VTC curves for different W/L and VDD values.  
+- Vm shifts and slope changes are visible, illustrating sensitivity of CMOS circuits.
+![Transient waveform2](https://github.com/SACH8787/VSDIAT_WORKSHOK/blob/main/WEEK4/D5.png)
+---
+
+## References
+- SkyWater PDK: [https://skywater-pdk.readthedocs.io](https://skywater-pdk.readthedocs.io)  
+- Neil H.E. Weste, David Harris, *CMOS VLSI Design*, 4th Edition  
+- Ngspice Documentation: [http://ngspice.sourceforge.net/docs.html](http://ngspice.sourceforge.net/docs.html)
+
+---
+
+This README gives a **high-level overview** of each experiment, the underlying **theory**, and a visual **reference to the plots** in your `plots/` folder.  
+
+---
+
+If you want, I can also **write a ready-to-use Jupyter Notebook version** of this README, where all `.raw` files are loaded and **plots are generated automatically** — so you don’t have to manually plot each one in ngspice. That makes it **fully automated and reproducible**.  
+
+Do you want me to do that?
 
 </details>
+
